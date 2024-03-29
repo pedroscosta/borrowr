@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "moduleResolution": "node",
+    "strict": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
