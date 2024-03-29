@@ -1,0 +1,32 @@
+{
+  "version": "0.1.0",
+  "registry": {
+    "commands/init": {
+      "files": [
+        "src/cli/commands/init.ts"
+      ],
+      "dependencies": [
+        "chalk",
+        "commander",
+        "prompts"
+      ],
+      "registryDependencies": []
+    },
+    "utils/config": {
+      "files": [
+        "src/cli/utils/config.ts"
+      ],
+      "dependencies": [
+        "zod"
+      ]
+    },
+    "utils/logger": {
+      "files": [
+        "src/cli/utils/logger.ts"
+      ],
+      "dependencies": [
+        "chalk"
+      ]
+    }
+  }
+}
