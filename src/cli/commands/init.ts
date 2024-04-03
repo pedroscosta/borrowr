@@ -6,7 +6,7 @@ import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
 import { z } from 'zod';
-import { configSchema, getCwdProjectJson } from '../utils/config';
+import { DEFAULT_CONFIG_FILE, configSchema, getCwdProjectJson } from '../utils/config';
 import { logger } from '../utils/logger';
 
 const initOptionsSchema = z.object({
@@ -65,7 +65,7 @@ export const init = new Command()
       const { proceed } = await prompts({
         type: 'confirm',
         name: 'proceed',
-        message: `Write configuration to ${highlight('components.json')}. Proceed?`,
+        message: `Write configuration to ${highlight(DEFAULT_CONFIG_FILE)}. Proceed?`,
         initial: true,
       });
 
@@ -76,8 +76,8 @@ export const init = new Command()
 
     // Write to file.
     logger.break();
-    const spinner = ora(`Writing components.json...`).start();
-    const targetPath = path.resolve(cwd, 'components.json');
+    const spinner = ora(`Writing ${DEFAULT_CONFIG_FILE}...`).start();
+    const targetPath = path.resolve(cwd, DEFAULT_CONFIG_FILE);
     await writeFile(targetPath, JSON.stringify(config, null, 2), 'utf8');
     spinner.succeed();
   });
