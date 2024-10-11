@@ -17,4 +17,7 @@ export const logger = {
   break() {
     console.log('');
   },
+  log(...args: unknown[]) {
+    console.log(...args);
+  },
 };
