@@ -1,12 +1,4 @@
 import { z } from 'zod';
-import { getConfig } from './config';
-
-export const getRegistryBasePathFromConfig = async (cwd: string) => {
-  const config = await getConfig(cwd);
-
-  // Only raw-github is supported right now
-  return `${config.repository.url.replace('github.com', 'raw.githubusercontent.com')}/main`;
-};
 
 const fetchRegistry = async (baseUrl: string, paths: string[]) => {
   try {
@@ -29,37 +21,45 @@ export const elementRegisterSchema = z.object({
   registryDependencies: z.array(z.string()).optional(),
 });
 
-export const registryIndexSchema = z.object({
+export const registrySpecSchema = z.object({
   version: z
     .string()
     .regex(
       /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/,
     ),
+  baseUrl: z.string(),
+  basePath: z.string(),
   registry: z.record(z.string(), elementRegisterSchema),
 });
 
-export const getRegistryIndex = async (baseUrl: string) => {
-  try {
-    const [result] = await fetchRegistry(baseUrl, ['.borrowmeta']);
+export type RegistrySpec = z.infer<typeof registrySpecSchema>;
 
-    return registryIndexSchema.parse(JSON.parse(result));
+export const getRegistrySpec = async (specUrl: string) => {
+  try {
+    const response = await fetch(specUrl);
+    const result = await response.text();
+
+    return registrySpecSchema.parse(JSON.parse(result));
   } catch (error) {
     throw new Error(`Failed to fetch commands from registry.`);
   }
 };
 
-export const resolveTree = async (index: z.infer<typeof registryIndexSchema>, ids: string[]) => {
-  let tree: z.infer<typeof registryIndexSchema>['registry'] = {};
+export const resolveTree = async (
+  registrySpec: z.infer<typeof registrySpecSchema>,
+  ids: string[],
+) => {
+  let tree: z.infer<typeof registrySpecSchema>['registry'] = {};
 
   for (const id of ids) {
-    const entry = index.registry[id];
+    const entry = registrySpec.registry[id];
 
     if (!entry) continue;
 
     tree[id] = entry;
 
     if (entry.registryDependencies) {
-      const deps = await resolveTree(index, entry.registryDependencies);
+      const deps = await resolveTree(registrySpec, entry.registryDependencies);
       tree = { ...tree, ...deps };
     }
   }
@@ -69,7 +69,7 @@ export const resolveTree = async (index: z.infer<typeof registryIndexSchema>, id
 
 export const fetchTree = async (
   baseUrl: string,
-  tree: z.infer<typeof registryIndexSchema>['registry'],
+  tree: z.infer<typeof registrySpecSchema>['registry'],
 ) => {
   const fetchedTree: Record<
     string,

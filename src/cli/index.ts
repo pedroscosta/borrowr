@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { version } from '../../package.json';
-import { add } from './commands/add';
+import { importCommand } from './commands/import';
 import { init } from './commands/init.js';
 import { remote } from './commands/remote';
 import { CLI_NAME } from './utils/config';
@@ -15,7 +15,7 @@ const main = async () => {
     .description('A tool for creating a code borrower cli')
     .version(version, '-v, --version', 'display the version number');
 
-  program.addCommand(init).addCommand(add).addCommand(remote);
+  program.addCommand(init).addCommand(importCommand).addCommand(remote);
 
   program.parse();
 };
