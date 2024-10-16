@@ -1,6 +1,7 @@
 {
   "version": "0.1.0",
   "baseUrl": "https://raw.githubusercontent.com/pedroscosta/borrowr/main",
+  "basePath": "src/cli/",
   "registry": {
     "commands/init": {
       "files": [
